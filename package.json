@@ -7,8 +7,11 @@
   "scripts": {
     "build:cjs": "webpack --config webpack.cjs.config.js",
     "build:esm": "webpack --config webpack.esm.config.js",
-    "build": "npm run build:cjs && npm run build:esm",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "npm run build:cjs && npm run build:esm"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Kaida-Amethyst/hightlightjs-moonbit.git"
   },
   "keywords": [
     "moonbit",
@@ -16,8 +19,9 @@
     "highlightjs",
     "syntax"
   ],
-  "author": "",
+  "author": "Kaida-Amethyst<ziyue.liu.vm@gmail.com>",
   "license": "MIT",
+  "homepage": "https://github.com/Kaida-Amethyst/hightlightjs-moonbit",
   "devDependencies": {
     "webpack": "^5.89.0",
     "webpack-cli": "^5.1.4"
