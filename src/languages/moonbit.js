@@ -6,6 +6,9 @@ Category: common
 */
 
 function moonbit(hljs) {
+  const regex = hljs.regex;
+  const IDENT_RE = /[a-zA-Z_][a-zA-Z0-9_]*/;
+  
   const KEYWORDS = [
     "async",
     "break",
@@ -27,7 +30,7 @@ function moonbit(hljs) {
     "loop",
     "match",
     "mut",
-    "newtype", // sometimes used in older versions or related languages, but sticking to grammar.js
+    "newtype",
     "priv",
     "pub",
     "raise",
@@ -81,16 +84,21 @@ function moonbit(hljs) {
     "Eq",
     "Compare",
     "Hash",
-    "Debug"
+    "Debug",
+    "Error" // common error type
   ];
 
+  const TYPES = BUILT_INS;
+
+  const NUMBER_SUFFIX = '([Uu]([Ll]|L|N)|L|N)?';
+  
   const NUMBER = {
-    className: "number",
+    className: 'number',
     variants: [
-      { begin: '\\b0b[01_]+' },
-      { begin: '\\b0o[0-7_]+' },
-      { begin: '\\b0x[0-9a-fA-F_]+' },
-      { begin: '\\b\\d[\\d_]*(\\.[\\d_]+)?([eE][+-]?[\\d_]+)?' }
+        { begin: '\\b0b([01_]+)' + NUMBER_SUFFIX },
+        { begin: '\\b0o([0-7_]+)' + NUMBER_SUFFIX },
+        { begin: '\\b0x([A-Fa-f0-9_]+)' + NUMBER_SUFFIX },
+        { begin: '\\b(\\d[\\d_]*(\\.[0-9_]+)?([eE][+-]?[0-9_]+)?)' + NUMBER_SUFFIX }
     ]
   };
 
@@ -149,34 +157,21 @@ function moonbit(hljs) {
   STRING_INTERPOLATION.contains = [
     NUMBER,
     STRING,
-    // We can add more expressions here if needed
   ];
 
   const ATTRIBUTE = {
     className: "meta",
-    begin: '@[a-zA-Z_][a-zA-Z0-9_.]*'
+    begin: '@[a-zA-Z_][a-zA-Z0-9_]*',
   };
 
-  const FUNCTION_DEFINITION = {
+  const FUNCTION_INVOKE = {
     className: "function",
-    beginKeywords: "fn",
-    end: "\\s*(\\{|=)",
-    excludeEnd: true,
-    contains: [
-      hljs.inherit(hljs.TITLE_MODE, { begin: /[a-zA-Z_][a-zA-Z0-9_]*/ }),
-      {
-        className: "params",
-        begin: /\(/,
-        end: /\)/,
-        contains: [NUMBER, STRING, hljs.C_BLOCK_COMMENT_MODE]
-      },
-      {
-        className: 'type',
-        begin: '->',
-        end: /\{/,
-        excludeEnd: true
-      }
-    ]
+    begin: regex.concat(
+      /\b/,
+      /(?!let|for|while|if|else|match\b)/,
+      IDENT_RE,
+      regex.lookahead(/\s*\(/)
+    )
   };
 
   return {
@@ -186,7 +181,7 @@ function moonbit(hljs) {
       keyword: KEYWORDS,
       literal: LITERALS,
       built_in: BUILT_INS,
-      type: BUILT_INS // Using built-ins as types often works well
+      type: TYPES
     },
     contains: [
       COMMENT,
@@ -194,34 +189,85 @@ function moonbit(hljs) {
       STRING,
       NUMBER,
       ATTRIBUTE,
-      FUNCTION_DEFINITION,
       {
-        className: "class",
-        beginKeywords: "struct enum trait type",
-        end: /\{/,
-        excludeEnd: true,
-        contains: [
-          hljs.inherit(hljs.TITLE_MODE, { begin: /[a-zA-Z_][a-zA-Z0-9_]*/ })
-        ]
+        // Function definition
+        begin: [
+          /fn/,
+          /\s+/,
+          IDENT_RE
+        ],
+        className: {
+          1: "keyword",
+          3: "title.function"
+        }
       },
       {
-        // Match capitalized identifiers as types or constructors
-        className: "type",
-        begin: "\\b[A-Z][a-zA-Z0-9_]*",
+        // Variable binding
+        begin: [
+          /let/,
+          /\s+/,
+          /(?:mut\s+)?/,
+          IDENT_RE
+        ],
+        className: {
+          1: "keyword",
+          3: "keyword",
+          4: "variable"
+        }
+      },
+      {
+        // For loop
+        begin: [
+          /for/,
+          /\s+/,
+          IDENT_RE,
+          /\s+/,
+          /in/
+        ],
+        className: {
+          1: "keyword",
+          3: "variable",
+          5: "keyword"
+        }
+      },
+      {
+        // Type definition etc
+        begin: [
+          /(?:trait|enum|struct|type|typealias)/,
+          /\s+/,
+          IDENT_RE
+        ],
+        className: {
+          1: "keyword",
+          3: "title.class"
+        }
+      },
+      {
+        // Constructor call or Enum variant
+        className: "title.class", // or "type"
+        begin: /\b[A-Z][a-zA-Z0-9_]*/,
         relevance: 0
       },
       {
-        // Match function calls
-        begin: /[a-z][a-zA-Z0-9_]*\s*(?=\()/,
-        className: "function"
+        // Package access
+        begin: regex.concat(IDENT_RE, '::'),
+        keywords: {
+            keyword: "Self",
+            built_in: BUILT_INS,
+            type: TYPES
+        }
       },
       {
+        className: "punctuation",
+        begin: '->'
+      },
+      FUNCTION_INVOKE,
+      {
         className: 'operator',
-        begin: /->|=>|::/
+        begin: /=>|::/
       }
     ]
   };
 }
 
 module.exports = moonbit;
-

@@ -1,6 +1,8 @@
-# highlightjs-moonbit-gemini
+# highlightjs-moonbit
 
 MoonBit language support for [highlight.js](https://highlightjs.org/).
+
+![MoonBit Syntax Highlighting](image.png)
 
 ## Usage
 
@@ -18,9 +20,9 @@ MoonBit language support for [highlight.js](https://highlightjs.org/).
 
 ```javascript
 const hljs = require('highlight.js');
-const { moonbitLanguageSupport } = require('highlightjs-moonbit-gemini');
+const moonbit = require('highlightjs-moonbit');
 
-hljs.registerLanguage('moonbit', moonbitLanguageSupport);
+hljs.registerLanguage('moonbit', moonbit);
 ```
 
 ## Development
@@ -29,4 +31,3 @@ hljs.registerLanguage('moonbit', moonbitLanguageSupport);
 npm install
 npm run build
 ```
-

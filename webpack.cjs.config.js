@@ -6,7 +6,11 @@ module.exports = {
   output: {
     filename: 'moonbit.min.js',
     path: path.resolve(__dirname, 'dist'),
-    libraryTarget: 'commonjs2',
+    library: {
+      name: 'hljsDefineMoonBit',
+      type: 'umd',
+      export: 'default' // Export the default export (the function) directly
+    },
+    globalObject: 'this'
   },
 };
-
