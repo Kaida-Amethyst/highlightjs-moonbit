@@ -1,6 +1,6 @@
 {
   "name": "highlightjs-moonbit",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "MoonBit language support for highlight.js",
   "main": "dist/moonbit.min.js",
   "module": "dist/moonbit.es.min.js",
