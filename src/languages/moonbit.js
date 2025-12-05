@@ -32,11 +32,11 @@ function moonbit(hljs) {
     "is",
     "in",
     "let",
+    "letrec",
     "loop",
     "match",
     "mut",
     "Self",
-    "newtype",
     "priv",
     "pub",
     "raise",
@@ -198,6 +198,7 @@ function moonbit(hljs) {
       {
         begin: /\bpub\s*\(/,
         end: /\)/,
+        keywords: { keyword: "pub" },
         contains: [
           {
             className: "keyword",
